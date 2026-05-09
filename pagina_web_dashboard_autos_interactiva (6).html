@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Trimestral de Autos</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#38bdf8;
+    font-size:40px;
+}
+
+.subtitulo{
+    text-align:center;
+    margin-bottom:30px;
+    color:#cbd5e1;
+}
+
+.selector{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+select{
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#334155;
+    color:white;
+    font-size:16px;
+}
+
+.panel{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.tarjeta{
+    padding:25px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0px 5px 15px rgba(0,0,0,0.4);
+    transition:0.3s;
+}
+
+.tarjeta:hover{
+    transform:translateY(-5px);
+}
+
+.tarjeta h2{
+    margin-bottom:10px;
+    font-size:22px;
+}
+
+.numero{
+    font-size:35px;
+    font-weight:bold;
+}
+
+.ventas{background:linear-gradient(135deg,#22c55e,#15803d);}
+.compras{background:linear-gradient(135deg,#ef4444,#991b1b);}
+.ganancias{background:linear-gradient(135deg,#3b82f6,#1d4ed8);}
+.autos{background:linear-gradient(135deg,#f59e0b,#d97706);}
+
+.tabla-container{
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    margin-bottom:30px;
+    overflow-x:auto;
+}
+
+h2{
+    margin-bottom:15px;
+    color:#38bdf8;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#0ea5e9;
+    padding:15px;
+}
+
+td{
+    padding:15px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.2);
+}
+
+input{
+    width:100px;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:#334155;
+    color:white;
+    text-align:center;
+    font-weight:bold;
+}
+
+button{
+    margin-top:20px;
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#16a34a;
+}
+
+.graficas{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+    gap:25px;
+}
+
+.grafica{
+    background:#1e293b;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0px 5px 15px rgba(0,0,0,0.4);
+}
+
+canvas{
+    max-height:350px;
+}
+
+</style>
+</head>
+<body>
+
+<h1>🚗 Dashboard Trimestral de Autos</h1>
+<p class="subtitulo">Sistema interactivo de ventas, compras, ganancias y pérdidas</p>
+
+<div class="selector">
+<select id="trimestre">
+<option>Enero - Marzo</option>
+<option>Abril - Junio</option>
+<option>Julio - Septiembre</option>
+<option>Octubre - Diciembre</option>
+</select>
+</div>
+
+<div class="panel">
+
+<div class="tarjeta ventas">
+<h2>💰 Ventas Totales</h2>
+<div class="numero" id="ventasTotales">$0</div>
+</div>
+
+<div class="tarjeta compras">
+<h2>🛒 Compras Totales</h2>
+<div class="numero" id="comprasTotales">$0</div>
+</div>
+
+<div class="tarjeta ganancias">
+<h2>📈 Ganancias</h2>
+<div class="numero" id="gananciasTotales">$0</div>
+</div>
+
+<div class="tarjeta autos">
+<h2>🚘 Autos Vendidos</h2>
+<div class="numero" id="autosVendidos">0</div>
+</div>
+
+</div>
+
+<div class="tabla-container">
+
+<h2>📋 Registro Trimestral</h2>
+
+<table id="tablaAutos">
+<thead>
+<tr>
+<th>Tipo de Auto</th>
+<th>Autos Vendidos</th>
+<th>Compras</th>
+<th>Ventas</th>
+<th>Ganancia/Pérdida</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>🏎️ Deportivos</td>
+<td><input type="number" value="12" class="cantidad"></td>
+<td><input type="number" value="25000" class="compras"></td>
+<td><input type="number" value="45000" class="ventas"></td>
+<td class="resultado"></td>
+</tr>
+
+<tr>
+<td>🚙 4x4</td>
+<td><input type="number" value="8" class="cantidad"></td>
+<td><input type="number" value="30000" class="compras"></td>
+<td><input type="number" value="52000" class="ventas"></td>
+<td class="resultado"></td>
+</tr>
+
+<tr>
+<td>👨‍👩‍👧 Familiares</td>
+<td><input type="number" value="15" class="cantidad"></td>
+<td><input type="number" value="18000" class="compras"></td>
+<td><input type="number" value="34000" class="ventas"></td>
+<td class="resultado"></td>
+</tr>
+
+<tr>
+<td>🚘 Sedan</td>
+<td><input type="number" value="10" class="cantidad"></td>
+<td><input type="number" value="15000" class="compras"></td>
+<td><input type="number" value="28000" class="ventas"></td>
+<td class="resultado"></td>
+</tr>
+</tbody>
+</table>
+
+<button onclick="actualizarDashboard()">Actualizar Dashboard</button>
+
+</div>
+
+<div class="graficas">
+
+<div class="grafica">
+<h2>📊 Ventas por Tipo de Auto</h2>
+<canvas id="graficaVentas"></canvas>
+</div>
+
+<div class="grafica">
+<h2>📉 Ganancias y Pérdidas</h2>
+<canvas id="graficaGanancias"></canvas>
+</div>
+
+<div class="grafica">
+<h2>🥧 Distribución de Autos Vendidos</h2>
+<canvas id="graficaCircular"></canvas>
+</div>
+
+</div>
+
+<script>
+
+let grafica1;
+let grafica2;
+let grafica3;
+
+function actualizarDashboard(){
+
+    let filas = document.querySelectorAll('#tablaAutos tbody tr');
+
+    let tipos = [];
+    let ventas = [];
+    let ganancias = [];
+    let cantidades = [];
+
+    let totalVentas = 0;
+    let totalCompras = 0;
+    let totalGanancias = 0;
+    let totalAutos = 0;
+
+    filas.forEach((fila)=>{
+
+        let tipo = fila.cells[0].innerText;
+        let cantidad = Number(fila.querySelector('.cantidad').value);
+        let compra = Number(fila.querySelector('.compras').value);
+        let venta = Number(fila.querySelector('.ventas').value);
+
+        let resultado = venta - compra;
+
+        fila.querySelector('.resultado').innerHTML = resultado >= 0
+        ? `<span style="color:#22c55e;font-weight:bold;">+$${resultado.toLocaleString()}</span>`
+        : `<span style="color:#ef4444;font-weight:bold;">-$${Math.abs(resultado).toLocaleString()}</span>`;
+
+        tipos.push(tipo);
+        ventas.push(venta);
+        ganancias.push(resultado);
+        cantidades.push(cantidad);
+
+        totalAutos += cantidad;
+        totalCompras += compra;
+        totalVentas += venta;
+        totalGanancias += resultado;
+
+    });
+
+    document.getElementById('ventasTotales').innerText = '$' + totalVentas.toLocaleString();
+    document.getElementById('comprasTotales').innerText = '$' + totalCompras.toLocaleString();
+    document.getElementById('gananciasTotales').innerText = '$' + totalGanancias.toLocaleString();
+    document.getElementById('autosVendidos').innerText = totalAutos;
+
+    crearGraficas(tipos,ventas,ganancias,cantidades);
+}
+
+function crearGraficas(tipos,ventas,ganancias,cantidades){
+
+    if(grafica1) grafica1.destroy();
+    if(grafica2) grafica2.destroy();
+    if(grafica3) grafica3.destroy();
+
+    grafica1 = new Chart(document.getElementById('graficaVentas'),{
+        type:'bar',
+        data:{
+            labels:tipos,
+            datasets:[{
+                label:'Ventas',
+                data:ventas,
+                backgroundColor:['#ef4444','#22c55e','#3b82f6','#f59e0b'],
+                borderRadius:10
+            }]
+        },
+        options:{
+            plugins:{legend:{labels:{color:'white'}}},
+            scales:{
+                x:{ticks:{color:'white'}},
+                y:{ticks:{color:'white'}}
+            }
+        }
+    });
+
+    grafica2 = new Chart(document.getElementById('graficaGanancias'),{
+        type:'line',
+        data:{
+            labels:tipos,
+            datasets:[{
+                label:'Ganancias/Pérdidas',
+                data:ganancias,
+                borderColor:'#22c55e',
+                backgroundColor:'#22c55e',
+                tension:0.4
+            }]
+        },
+        options:{
+            plugins:{legend:{labels:{color:'white'}}},
+            scales:{
+                x:{ticks:{color:'white'}},
+                y:{ticks:{color:'white'}}
+            }
+        }
+    });
+
+    grafica3 = new Chart(document.getElementById('graficaCircular'),{
+        type:'doughnut',
+        data:{
+            labels:tipos,
+            datasets:[{
+                data:cantidades,
+                backgroundColor:['#ef4444','#22c55e','#3b82f6','#f59e0b']
+            }]
+        },
+        options:{
+            plugins:{legend:{labels:{color:'white'}}}
+        }
+    });
+}
+
+actualizarDashboard();
+
+</script>
+
+</body>
+</html>
